@@ -1,13 +1,12 @@
 use {
     core::borrow::Borrow,
-    print3rs_core::Socket,
     std::{
         collections::HashMap,
         fmt::Debug,
         sync::{Arc, Mutex},
         time::Duration,
     },
-    tokio::io::{AsyncWrite, BufReader},
+    tokio::io::BufReader,
     tokio_serial::SerialStream,
 };
 
