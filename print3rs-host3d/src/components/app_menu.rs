@@ -1,4 +1,4 @@
-use {cosmic::widget::menu, std::collections::HashMap};
+use {cosmic::Element, cosmic::widget::menu, std::collections::HashMap};
 
 use crate::app::App;
 use crate::messages::Message;
@@ -28,22 +28,22 @@ impl menu::Action for MenuAction {
     }
 }
 
-pub(crate) fn app_menu(app: &App) -> menu::MenuBar<'_, Message> {
+pub(crate) fn app_menu(app: &App) -> menu::MenuBar<Message> {
     let keybinds = HashMap::new();
     let file = menu::Tree::with_children(
-        menu::root("File"),
+        Element::from(menu::root("File")),
         menu::items(
             &keybinds,
             vec![
-                menu::Item::Button("Print", MenuAction::Print),
-                menu::Item::Button("Save", MenuAction::Save),
-                menu::Item::Button("Clear", MenuAction::Clear),
-                menu::Item::Button("Quit", MenuAction::Quit),
+                menu::Item::Button("Print", None, MenuAction::Print),
+                menu::Item::Button("Save", None, MenuAction::Save),
+                menu::Item::Button("Clear", None, MenuAction::Clear),
+                menu::Item::Button("Quit", None, MenuAction::Quit),
             ],
         ),
     );
     let macros = menu::Tree::with_children(
-        menu::root("Macros"),
+        Element::from(menu::root("Macros")),
         menu::items(
             &keybinds,
             app.commander
@@ -51,20 +51,22 @@ pub(crate) fn app_menu(app: &App) -> menu::MenuBar<'_, Message> {
                 .iter()
                 .enumerate()
                 .map(|(index, (name, _content))| {
-                    menu::Item::Button(name.clone(), MenuAction::DoMacro(index))
+                    menu::Item::Button(name.clone(), None, MenuAction::DoMacro(index))
                 })
                 .collect(),
         ),
     );
     let tasks = menu::Tree::with_children(
-        menu::root("Tasks"),
+        Element::from(menu::root("Tasks")),
         menu::items(
             &keybinds,
             app.commander
                 .tasks
                 .keys()
                 .enumerate()
-                .map(|(index, name)| menu::Item::Button(name.clone(), MenuAction::KillTask(index)))
+                .map(|(index, name)| {
+                    menu::Item::Button(name.clone(), None, MenuAction::KillTask(index))
+                })
                 .collect(),
         ),
     );

@@ -1,8 +1,9 @@
 use crate::messages::{JogMove, Message, MoveAxis};
-use cosmic::iced_widget::{button, column, row};
-use cosmic::widget::{container, slider, text, Space};
 use cosmic::Element;
-use {super::centered_row::centered_row, cosmic::iced::alignment};
+use cosmic::iced::Length;
+use cosmic::iced::alignment;
+use cosmic::iced::widget::{button, column, row};
+use cosmic::widget::{Space, container, slider, text};
 use {crate::app::App, cosmic::iced::Alignment};
 
 pub(crate) fn jogger(app: &App) -> Element<'_, Message> {
@@ -24,8 +25,8 @@ pub(crate) fn jogger(app: &App) -> Element<'_, Message> {
         };
         button(
             label
-                .horizontal_alignment(alignment::Horizontal::Center)
-                .vertical_alignment(alignment::Vertical::Center),
+                .align_x(alignment::Horizontal::Center)
+                .align_y(alignment::Vertical::Center),
         )
         .on_press_maybe(if_connected(Message::Jog(jogmove)))
         .width(BUTTON_WIDTH)
@@ -35,50 +36,51 @@ pub(crate) fn jogger(app: &App) -> Element<'_, Message> {
         jog_button(Jog::Y(scale)),
         row![
             jog_button(Jog::X(-scale)),
-            Space::with_width(BUTTON_WIDTH),
+            Space::new().width(BUTTON_WIDTH),
             jog_button(Jog::X(scale)),
         ]
         .spacing(0.0),
         jog_button(Jog::Y(-scale)),
     ]
     .spacing(0.0)
-    .align_items(Alignment::Center);
+    .align_x(Alignment::Center);
 
     container(
         column![
-            centered_row![
+            row![
                 xy_buttons,
                 column![
-                    Space::with_height(10.0),
+                    Space::new().height(10.0),
                     jog_button(Jog::Z(scale)),
-                    Space::with_height(10.0),
+                    Space::new().height(10.0),
                     jog_button(Jog::Z(-scale))
                 ]
                 .spacing(10.0),
             ]
             .spacing(10.0)
-            .align_items(Alignment::Center),
+            .align_y(Alignment::Center),
             slider(0.0..=100.0, app.jog_scale, Message::JogScale)
                 .step(1.0)
                 .width(240),
-            centered_row![
-                button(text("home").horizontal_alignment(alignment::Horizontal::Center))
+            row![
+                button(text("home").align_x(alignment::Horizontal::Center))
                     .width(BUTTON_WIDTH)
                     .on_press_maybe(if_connected(Message::Home(MoveAxis::All))),
-                button(text("X").horizontal_alignment(alignment::Horizontal::Center))
+                button(text("X").align_x(alignment::Horizontal::Center))
                     .width(BUTTON_WIDTH / 2.0)
                     .on_press_maybe(if_connected(Message::Home(MoveAxis::X))),
-                button(text("Y").horizontal_alignment(alignment::Horizontal::Center))
+                button(text("Y").align_x(alignment::Horizontal::Center))
                     .width(BUTTON_WIDTH / 2.0)
                     .on_press_maybe(if_connected(Message::Home(MoveAxis::Y))),
-                button(text("Z").horizontal_alignment(alignment::Horizontal::Center))
+                button(text("Z").align_x(alignment::Horizontal::Center))
                     .width(BUTTON_WIDTH / 2.0)
                     .on_press_maybe(if_connected(Message::Home(MoveAxis::Z))),
-            ],
+            ]
+            .align_y(Alignment::Center),
         ]
         .spacing(10.0),
     )
-    .center_x()
+    .center_x(Length::Shrink)
     .padding(10)
     .into()
 }

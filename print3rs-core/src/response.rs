@@ -1,5 +1,5 @@
 use winnow::{
-    ascii::{dec_int, multispace0, space0, Caseless},
+    ascii::{Caseless, dec_int, multispace0, space0},
     combinator::{alt, opt, preceded, terminated},
     prelude::*,
 };
@@ -13,7 +13,7 @@ pub enum Response {
     Resend(Option<i32>),
 }
 
-fn ok_response(input: &mut &[u8]) -> PResult<Response> {
+fn ok_response(input: &mut &[u8]) -> ModalResult<Response> {
     preceded(
         (space0, Caseless("ok"), opt(":"), space0, opt(b'N')),
         terminated(opt(dec_int), multispace0),
@@ -22,7 +22,7 @@ fn ok_response(input: &mut &[u8]) -> PResult<Response> {
     .parse_next(input)
 }
 
-fn resend_response(input: &mut &[u8]) -> PResult<Response> {
+fn resend_response(input: &mut &[u8]) -> ModalResult<Response> {
     preceded(
         (space0, Caseless("Resend:"), space0),
         terminated(opt(dec_int), multispace0),
@@ -32,7 +32,7 @@ fn resend_response(input: &mut &[u8]) -> PResult<Response> {
 }
 
 /// try to parse a `Response` out of a byte stream
-pub fn response(input: &mut &[u8]) -> PResult<Response> {
+pub fn response(input: &mut &[u8]) -> ModalResult<Response> {
     alt((ok_response, resend_response)).parse_next(input)
 }
 

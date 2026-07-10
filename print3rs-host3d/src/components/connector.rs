@@ -1,9 +1,7 @@
-use cosmic::{
-    iced::widget::{button, column, row},
-    iced_widget::pick_list,
-};
-use cosmic::{widget::combo_box, Element};
-use {super::centered_row::centered_row, cosmic::widget::radio};
+use cosmic::iced::Alignment;
+use cosmic::iced::widget::{button, column, pick_list, row};
+use cosmic::widget::radio;
+use cosmic::{Element, widget::combo_box};
 use {
     cosmic::widget::text_input, print3rs_commands::commands::connect::HostPort, std::str::FromStr,
 };
@@ -41,14 +39,12 @@ pub(crate) fn connector(app: &App) -> Element<'_, Message> {
                 Message::ChangeConnection(Connection::Serial { port, baud })
             },)
             .on_input(move |port| Message::ChangeConnection(Connection::Serial { port, baud })),
-            pick_list(
-                &[9600, 115200],
-                baud,
-                move |baud| Message::ChangeConnection(Connection::Serial {
+            pick_list([9600, 115200], baud, move |baud| Message::ChangeConnection(
+                Connection::Serial {
                     port: port.clone(),
                     baud: Some(baud)
-                }),
-            ),
+                }
+            ),),
         ]
         .spacing(5)
         .into(),
@@ -171,16 +167,19 @@ pub(crate) fn connector(app: &App) -> Element<'_, Message> {
     .spacing(5);
     let protocol_selector = row!["Protocol:", auto, serial, tcp, mqtt]
         .spacing(20.0)
-        .align_items(cosmic::iced::Alignment::Center);
+        .align_y(Alignment::Center);
     column![
         protocol_selector,
         connection_details,
-        centered_row![button(if app.commander.printer().is_connected() {
-            "disconnect"
-        } else {
-            "connect"
-        })
-        .on_press(Message::ToggleConnect)]
+        row![
+            button(if app.commander.printer().is_connected() {
+                "disconnect"
+            } else {
+                "connect"
+            })
+            .on_press(Message::ToggleConnect)
+        ]
+        .align_y(Alignment::Center)
     ]
     .spacing(10)
     .padding(10)

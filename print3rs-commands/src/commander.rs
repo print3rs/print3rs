@@ -1,12 +1,13 @@
 use {
     crate::{
         commands::{
+            Command,
             connect::{self, Connection},
-            help, macros, version, Command,
+            help, macros, version,
         },
         response::Response,
         tasks::{
-            send_gcodes, start_logging, start_print_file, start_repeat, BackgroundTask, Tasks,
+            BackgroundTask, Tasks, send_gcodes, start_logging, start_print_file, start_repeat,
         },
     },
     print3rs_core::Printer,
@@ -17,7 +18,7 @@ use {
 
 type CommandReceiver = tokio::sync::mpsc::Receiver<Command<String>>;
 type ResponseSender = tokio::sync::broadcast::Sender<Response>;
-type ResponseReceiver = tokio::sync::broadcast::Receiver<Response>;
+pub type ResponseReceiver = tokio::sync::broadcast::Receiver<Response>;
 
 #[derive(Debug)]
 pub struct Commander {

@@ -1,9 +1,9 @@
 use winnow::{
     ascii::{float, space1},
-    combinator::{alt, delimited, dispatch, empty, fail, preceded, repeat, rest},
+    combinator::{alt, delimited, dispatch, empty, fail, preceded, repeat},
     prelude::*,
     stream::AsChar,
-    token::{take, take_till, take_until},
+    token::{rest, take, take_till, take_until},
 };
 use {
     crate::commands::{Command, identifier},
@@ -41,11 +41,11 @@ impl Segment<&str> {
     }
 }
 
-fn parse_tag<'a>(input: &mut &'a str) -> PResult<Segment<&'a str>> {
+fn parse_tag<'a>(input: &mut &'a str) -> ModalResult<Segment<&'a str>> {
     Ok(Segment::Tag(take_till(1.., ('{', '}')).parse_next(input)?))
 }
 
-fn parse_escape<'a>(input: &mut &'a str) -> PResult<Segment<&'a str>> {
+fn parse_escape<'a>(input: &mut &'a str) -> ModalResult<Segment<&'a str>> {
     dispatch! {take(2usize);
     "{{" => empty.map(|_| Segment::Escaped('{')),
     "}}" => empty.map(|_| Segment::Escaped('}')),
@@ -54,21 +54,21 @@ fn parse_escape<'a>(input: &mut &'a str) -> PResult<Segment<&'a str>> {
     .parse_next(input)
 }
 
-fn parse_value<'a>(input: &mut &'a str) -> PResult<Segment<&'a str>> {
+fn parse_value<'a>(input: &mut &'a str) -> ModalResult<Segment<&'a str>> {
     Ok(Segment::Value(
         delimited("{", identifier, "}").parse_next(input)?,
     ))
 }
 
-fn parse_segment<'a>(input: &mut &'a str) -> PResult<Segment<&'a str>> {
+fn parse_segment<'a>(input: &mut &'a str) -> ModalResult<Segment<&'a str>> {
     alt((parse_tag, parse_escape, parse_value)).parse_next(input)
 }
 
-pub fn parse_segments<'a>(input: &mut &'a str) -> PResult<Vec<Segment<&'a str>>> {
+pub fn parse_segments<'a>(input: &mut &'a str) -> ModalResult<Vec<Segment<&'a str>>> {
     repeat(1.., parse_segment).parse_next(input)
 }
 
-pub fn parse_logger<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+pub fn parse_logger<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     (
         preceded(space0, identifier),
         preceded(space1, parse_segments),
@@ -79,13 +79,13 @@ pub fn parse_logger<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
 
 pub fn make_parser(
     segments: Vec<Segment<&str>>,
-) -> impl FnMut(&mut &[u8]) -> PResult<Vec<f32>> + use<> {
+) -> impl FnMut(&mut &[u8]) -> ModalResult<Vec<f32>> + use<> {
     let mut owned_segments = Vec::new();
     for segment in segments {
         owned_segments.push(segment.into_owned());
     }
     let segments = owned_segments;
-    move |input: &mut &[u8]| -> PResult<Vec<f32>> {
+    move |input: &mut &[u8]| -> ModalResult<Vec<f32>> {
         let mut values = vec![];
 
         // skips up to pattern start

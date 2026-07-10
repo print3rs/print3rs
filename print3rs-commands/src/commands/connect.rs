@@ -6,7 +6,7 @@ use {
         io::BufReader,
         time::{sleep, timeout},
     },
-    tokio_serial::{available_ports, SerialPort, SerialPortBuilderExt, SerialPortInfo},
+    tokio_serial::{SerialPort, SerialPortBuilderExt, SerialPortInfo, available_ports},
     winnow::{
         ascii::{alpha0, dec_uint, space0},
         combinator::{alt, dispatch, empty, opt, preceded, terminated},
@@ -154,7 +154,7 @@ impl Connection<String> {
     }
 }
 
-fn parse_serial_connection<'a>(input: &mut &'a str) -> PResult<Connection<&'a str>> {
+fn parse_serial_connection<'a>(input: &mut &'a str) -> ModalResult<Connection<&'a str>> {
     let (port, baud) = (
         preceded(space0, take_till(1.., ' ')),
         preceded(space0, opt(dec_uint)),
@@ -163,7 +163,7 @@ fn parse_serial_connection<'a>(input: &mut &'a str) -> PResult<Connection<&'a st
     Ok(Connection::Serial { port, baud })
 }
 
-fn parse_hostname_port<'a>(input: &mut &'a str) -> PResult<(&'a str, Option<u16>)> {
+fn parse_hostname_port<'a>(input: &mut &'a str) -> ModalResult<(&'a str, Option<u16>)> {
     (
         preceded(space0, take_till(1.., [' ', ':'])),
         preceded(alt((":", space0)), opt(dec_uint)),
@@ -171,12 +171,12 @@ fn parse_hostname_port<'a>(input: &mut &'a str) -> PResult<(&'a str, Option<u16>
         .parse_next(input)
 }
 
-fn parse_tcp_connection<'a>(input: &mut &'a str) -> PResult<Connection<&'a str>> {
+fn parse_tcp_connection<'a>(input: &mut &'a str) -> ModalResult<Connection<&'a str>> {
     let (hostname, port) = terminated(parse_hostname_port, space0).parse_next(input)?;
     Ok(Connection::Tcp { hostname, port })
 }
 
-fn parse_mqtt_connection<'a>(input: &mut &'a str) -> PResult<Connection<&'a str>> {
+fn parse_mqtt_connection<'a>(input: &mut &'a str) -> ModalResult<Connection<&'a str>> {
     let (hostname, port) = parse_hostname_port.parse_next(input)?;
     let (in_topic, out_topic) = terminated(
         (
@@ -195,7 +195,7 @@ fn parse_mqtt_connection<'a>(input: &mut &'a str) -> PResult<Connection<&'a str>
 }
 
 /// Parse connection details from a string, for any known protocol
-pub fn parse_connection<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+pub fn parse_connection<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     let connection = dispatch! { preceded(space0, alpha0);
         "serial" => parse_serial_connection,
         "tcp" | "ip" => parse_tcp_connection,

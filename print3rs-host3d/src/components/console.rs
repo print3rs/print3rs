@@ -1,8 +1,8 @@
 use {
     cosmic::{
-        iced_widget::{button, column, row},
-        widget::{combo_box::State as ComboState, text_editor, text_editor::Content, text_input},
         Element,
+        iced::widget::{button, column, row},
+        widget::{combo_box::State as ComboState, text_editor, text_editor::Content, text_input},
     },
     std::collections::VecDeque,
 };
@@ -40,7 +40,11 @@ impl State {
                     .font(cosmic::font::Font::MONOSPACE)
                     .on_input(Message::CommandInput)
                     .on_submit(Message::SubmitCommand)
-                    .trailing_icon(button("send").on_press(Message::SubmitCommand).into()),
+                    .trailing_icon(
+                        button("send")
+                            .on_press(Message::SubmitCommand(self.command.clone()))
+                            .into()
+                    ),
             ]
         ]
         .into()

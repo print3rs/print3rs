@@ -1,7 +1,7 @@
 use {
     self::{
         connect::Connection,
-        log::{parse_logger, Segment},
+        log::{Segment, parse_logger},
     },
     crate::commands::connect::parse_connection,
     core::borrow::Borrow,
@@ -16,9 +16,9 @@ use {
 
 use winnow::{
     ascii::{alpha1, space0, space1},
-    combinator::{alt, dispatch, empty, fail, opt, preceded, rest, separated},
+    combinator::{alt, dispatch, empty, fail, opt, preceded, separated},
     prelude::*,
-    token::take_till,
+    token::{rest, take_till},
 };
 
 pub mod connect;
@@ -27,7 +27,7 @@ pub mod log;
 pub mod macros;
 pub mod version;
 
-pub fn identifier<'a>(input: &mut &'a str) -> PResult<&'a str> {
+pub fn identifier<'a>(input: &mut &'a str) -> ModalResult<&'a str> {
     const NAME_CHARS: (
         std::ops::RangeInclusive<char>,
         std::ops::RangeInclusive<char>,
@@ -137,30 +137,30 @@ impl<'a> From<&'a Command<String>> for Command<&'a str> {
     }
 }
 
-fn plausible_code<'a>(input: &mut &'a str) -> PResult<&'a str> {
+fn plausible_code<'a>(input: &mut &'a str) -> ModalResult<&'a str> {
     let checkpoint = input.checkpoint();
     let _ = preceded(space0, (take_while(1, AsChar::is_alpha), digit1)).parse_next(input)?;
     input.reset(&checkpoint);
     take_till(2.., ';').parse_next(input)
 }
 
-fn parse_gcodes<'a>(input: &mut &'a str) -> PResult<Vec<&'a str>> {
+fn parse_gcodes<'a>(input: &mut &'a str) -> ModalResult<Vec<&'a str>> {
     terminated(separated(0.., plausible_code, ';'), opt(";")).parse_next(input)
 }
 
-fn parse_repeater<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+fn parse_repeater<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     (preceded(space0, identifier), preceded(space1, parse_gcodes))
         .map(|(name, gcodes)| Command::Repeat(name, gcodes))
         .parse_next(input)
 }
 
-fn parse_macro<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+fn parse_macro<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     let (name, steps) =
         (preceded(space0, identifier), preceded(space1, parse_gcodes)).parse_next(input)?;
     Ok(Command::Macro(name, steps))
 }
 
-fn inner_command<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+fn inner_command<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     dispatch! {preceded(space0, alpha1);
         "log" => parse_logger,
         "repeat" => parse_repeater,
@@ -181,7 +181,7 @@ fn inner_command<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
     .parse_next(input)
 }
 
-pub fn parse_command<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
+pub fn parse_command<'a>(input: &mut &'a str) -> ModalResult<Command<&'a str>> {
     alt((
         inner_command,
         parse_gcodes.map(|gcodes| {

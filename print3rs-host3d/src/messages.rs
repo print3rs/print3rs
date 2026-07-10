@@ -1,7 +1,7 @@
 use {
     cosmic::widget::ToastId,
     print3rs_commands::{
-        commands::{connect::Connection, Command},
+        commands::{Command, connect::Connection},
         response::Response,
     },
     print3rs_core::Printer,
@@ -58,7 +58,7 @@ pub(crate) enum Message {
     ToggleConnect,
     JogScale(f32),
     CommandInput(String),
-    SubmitCommand,
+    SubmitCommand(String),
     ProcessCommand(Command<String>),
     Quit,
     ClearConsole,
@@ -72,7 +72,6 @@ pub(crate) enum Message {
     OutputAction(cosmic::widget::text_editor::Action),
     DoMacro(usize),
     KillTask(usize),
-    NoOp,
 }
 
 impl From<Response> for Message {
