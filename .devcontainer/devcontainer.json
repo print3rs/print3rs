@@ -1,0 +1,8 @@
+{
+    "build": {
+      "dockerfile": "./Dockerfile"
+    },
+    "runArgs": [
+        "--device=/dev/dri"
+    ]
+}
