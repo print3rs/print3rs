@@ -1,9 +1,9 @@
 use serde::{
-    ser::{self, SerializeStruct},
     Serialize,
+    ser::{self, SerializeStruct},
 };
 
-use std::sync::{atomic::AtomicI32 as Ai32, atomic::Ordering, Arc};
+use std::sync::{Arc, atomic::AtomicI32 as Ai32, atomic::Ordering};
 
 /// Default start point for new sequencers
 pub const SEQUENCE_START: i32 = 1;
@@ -229,9 +229,9 @@ impl ser::Serializer for &mut GcodeLine {
         Ok(())
     }
 
-    fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
+    fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         value.serialize(self)
     }
@@ -253,18 +253,18 @@ impl ser::Serializer for &mut GcodeLine {
         self.serialize_unit_struct(variant)
     }
 
-    fn serialize_newtype_struct<T: ?Sized>(
+    fn serialize_newtype_struct<T>(
         self,
         _name: &'static str,
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         value.serialize(self)
     }
 
-    fn serialize_newtype_variant<T: ?Sized>(
+    fn serialize_newtype_variant<T>(
         self,
         _name: &'static str,
         _variant_index: u32,
@@ -272,7 +272,7 @@ impl ser::Serializer for &mut GcodeLine {
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         value.serialize(self)
     }
@@ -332,9 +332,9 @@ impl ser::SerializeSeq for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(&mut **self)
     }
@@ -349,16 +349,16 @@ impl ser::SerializeMap for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
+    fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         key.serialize(&mut **self)
     }
 
-    fn serialize_value<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(&mut **self)
     }
@@ -373,13 +373,9 @@ impl ser::SerializeStruct for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         key.chars()
             .nth(0)
@@ -400,13 +396,9 @@ impl ser::SerializeStructVariant for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         <Self as SerializeStruct>::serialize_field(self, key, value)
     }
@@ -421,9 +413,9 @@ impl ser::SerializeTuple for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(&mut **self)
     }
@@ -438,9 +430,9 @@ impl ser::SerializeTupleStruct for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(&mut **self)
     }
@@ -455,9 +447,9 @@ impl ser::SerializeTupleVariant for &mut GcodeLine {
 
     type Error = core::fmt::Error;
 
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(&mut **self)
     }
