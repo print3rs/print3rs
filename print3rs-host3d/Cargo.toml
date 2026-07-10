@@ -2,7 +2,7 @@
 name = "host3d"
 description = "Cross-platform graphical 3D-printer host"
 version = "0.2.0"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0-only"
 repository = "https://github.com/arades79/print3rs"
 rust-version = "1.96"

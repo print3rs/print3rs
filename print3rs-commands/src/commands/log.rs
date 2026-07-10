@@ -6,7 +6,7 @@ use winnow::{
     token::{take, take_till, take_until},
 };
 use {
-    crate::commands::{identifier, Command},
+    crate::commands::{Command, identifier},
     core::borrow::Borrow,
     winnow::ascii::space0,
 };
@@ -77,7 +77,9 @@ pub fn parse_logger<'a>(input: &mut &'a str) -> PResult<Command<&'a str>> {
         .parse_next(input)
 }
 
-pub fn make_parser(segments: Vec<Segment<&str>>) -> impl FnMut(&mut &[u8]) -> PResult<Vec<f32>> {
+pub fn make_parser(
+    segments: Vec<Segment<&str>>,
+) -> impl FnMut(&mut &[u8]) -> PResult<Vec<f32>> + use<> {
     let mut owned_segments = Vec::new();
     for segment in segments {
         owned_segments.push(segment.into_owned());
@@ -106,10 +108,10 @@ pub fn make_parser(segments: Vec<Segment<&str>>) -> impl FnMut(&mut &[u8]) -> PR
         }
         for segment in segments.iter() {
             match segment {
-                Segment::Tag(ref s) => {
+                Segment::Tag(s) => {
                     s.as_bytes().parse_next(input)?;
                 }
-                Segment::Escaped(mut c) => {
+                &Segment::Escaped(mut c) => {
                     c.parse_next(input)?;
                 }
                 Segment::Value(_) => {

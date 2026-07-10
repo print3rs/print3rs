@@ -2,7 +2,7 @@
 name = "lin3d"
 description = "Cross platform console 3D-printer host"
 version = "0.2.0"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0-only"
 rust-version = "1.96"
 

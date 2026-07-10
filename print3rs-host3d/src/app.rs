@@ -1,9 +1,9 @@
 use cosmic::{
+    Application, Command,
     app::Core,
     iced::Subscription,
     prelude::*,
-    widget::{self, combo_box::State as ComboState, toaster, Toast, Toasts},
-    Application, Command,
+    widget::{self, Toast, Toasts, combo_box::State as ComboState, toaster},
 };
 use {
     crate::components, print3rs_commands::commander::Commander, print3rs_core::Printer,
@@ -12,7 +12,7 @@ use {
 use {crate::components::Console, print3rs_commands::commands::connect::Connection};
 
 use tokio_serial::available_ports;
-use tokio_stream::{wrappers::BroadcastStream, StreamExt};
+use tokio_stream::{StreamExt, wrappers::BroadcastStream};
 
 use winnow::prelude::*;
 
@@ -66,7 +66,7 @@ impl Application for App {
         &mut self.cosmic
     }
 
-    fn header_start(&self) -> Vec<Element<Self::Message>> {
+    fn header_start(&self) -> Vec<Element<'_, Self::Message>> {
         vec![components::app_menu(self).into()]
     }
 

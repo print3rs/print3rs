@@ -1,5 +1,5 @@
 use {
-    crate::commands::log::{get_headers, make_parser, Segment},
+    crate::commands::log::{Segment, get_headers, make_parser},
     print3rs_core::{Error as PrinterError, Printer, Socket},
     std::{
         collections::HashMap,

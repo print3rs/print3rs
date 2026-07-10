@@ -263,7 +263,7 @@ async fn printer_com_task(
                             }
                         },
                         Response::Resend(ref maybe_seq) => {
-                            if let Some((_, ref line)) = pending_responses.get(maybe_seq) {
+                            if let Some((_, line)) = pending_responses.get(maybe_seq) {
                                 if transport.write_all(line).await.is_err() {return;}
                                 if transport.flush().await.is_err() {return;}
                                 tracing::debug!("Resent `{}` to printer", String::from_utf8_lossy(line).trim());
