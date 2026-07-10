@@ -31,7 +31,7 @@ impl Segment<String> {
     }
 }
 
-impl<'a> Segment<&'a str> {
+impl Segment<&str> {
     pub fn into_owned(self) -> Segment<String> {
         match self {
             Segment::Tag(s) => Segment::Tag(s.to_owned()),

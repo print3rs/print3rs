@@ -96,7 +96,7 @@ impl<T> Connection<T> {
     }
 }
 
-impl<'a> Connection<&'a str> {
+impl Connection<&str> {
     /// convert any inner borrowed data into owned
     pub fn into_owned(self) -> Connection<String> {
         match self {

@@ -60,7 +60,7 @@ pub enum Command<S> {
     Unrecognized,
 }
 
-impl<'a> Command<&'a str> {
+impl Command<&str> {
     pub fn into_owned(self) -> Command<String> {
         use Command::*;
         match self {
