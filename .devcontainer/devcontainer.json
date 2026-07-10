@@ -3,6 +3,9 @@
       "dockerfile": "./Dockerfile"
     },
     "runArgs": [
-        "--device=/dev/dri"
+        "--device=/dev/dri",
+        "-e WAYLAND_DISPLAY=$WAYLAND_DISPLAY",
+        "-e XDG_RUNTIME_DIR=/tmp/runtime-dir",
+        "-v $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/runtime-dir/$WAYLAND_DISPLAY:ro"
     ]
 }
